@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @RequestMapping("/vacancies")
 public class VacancyController {
     private final VacancyService vacancyService;
+
     public VacancyController(VacancyService vacancyService) {
         this.vacancyService = vacancyService;
     }

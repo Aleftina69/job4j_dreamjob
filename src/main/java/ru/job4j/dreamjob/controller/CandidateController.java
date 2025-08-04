@@ -10,6 +10,7 @@ import ru.job4j.dreamjob.service.CandidateService;
 @RequestMapping("/candidates")
 public class CandidateController {
     private final CandidateService candidateService;
+
     public CandidateController(CandidateService candidateService) {
         this.candidateService = candidateService;
     }
