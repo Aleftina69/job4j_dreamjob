@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MemoryCandidateRepository implements CandidateRepository {
 
     private final Map<Integer, Candidate> candidates = new ConcurrentHashMap<>();
-    private AtomicInteger nextId = new AtomicInteger(1);
+    private final AtomicInteger nextId = new AtomicInteger(1);
 
     private MemoryCandidateRepository() {
         save(new Candidate(0, "Иван Иванов", "Описание 1", LocalDateTime.now()));
