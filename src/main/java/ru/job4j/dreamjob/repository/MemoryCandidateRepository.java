@@ -12,8 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class MemoryCandidateRepository implements CandidateRepository {
 
-    private static final MemoryCandidateRepository INSTANCE = new MemoryCandidateRepository();
-
     private final Map<Integer, Candidate> candidates = new ConcurrentHashMap<>();
     private int nextId = 1;
 
@@ -24,10 +22,6 @@ public class MemoryCandidateRepository implements CandidateRepository {
         save(new Candidate(0, "Егор Егоров", "Описание 4", LocalDateTime.now()));
         save(new Candidate(0, "Екатерина Попова", "Описание 5", LocalDateTime.now()));
         save(new Candidate(0, "Евгений Морозов", "Описание 6", LocalDateTime.now()));
-    }
-
-    public static MemoryCandidateRepository getInstance() {
-        return INSTANCE;
     }
 
     @Override
