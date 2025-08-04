@@ -1,5 +1,6 @@
 package ru.job4j.dreamjob.repository;
 
+import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Repository;
 import ru.job4j.dreamjob.model.Candidate;
 
@@ -8,12 +9,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@ThreadSafe
 @Repository
 public class MemoryCandidateRepository implements CandidateRepository {
 
     private final Map<Integer, Candidate> candidates = new ConcurrentHashMap<>();
-    private int nextId = 1;
+    private AtomicInteger nextId = new AtomicInteger(1);
 
     private MemoryCandidateRepository() {
         save(new Candidate(0, "Иван Иванов", "Описание 1", LocalDateTime.now()));
@@ -27,7 +30,7 @@ public class MemoryCandidateRepository implements CandidateRepository {
     @Override
     public Candidate save(Candidate candidate) {
         if (candidate.getId() == 0) { // если id не задан, то присваиваем новый
-            candidate.setId(nextId++);
+            candidate.setId(nextId.incrementAndGet());
         }
         candidates.put(candidate.getId(), candidate);
         return candidate;
