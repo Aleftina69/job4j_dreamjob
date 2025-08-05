@@ -15,22 +15,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Repository
 public class MemoryVacancyRepository implements VacancyRepository {
 
-    private final AtomicInteger nextId = new AtomicInteger(1);
+    private int nextId = 1;
 
     private final Map<Integer, Vacancy> vacancies = new ConcurrentHashMap<>();
 
     private MemoryVacancyRepository() {
-        save(new Vacancy(0, "Intern Java Developer", "Описание 1", LocalDateTime.now(), true, 1));
-        save(new Vacancy(0, "Junior Java Developer", "Описание 2", LocalDateTime.now(), true, 2));
-        save(new Vacancy(0, "Junior+ Java Developer", "Описание 3", LocalDateTime.now(), true, 1));
-        save(new Vacancy(0, "Middle Java Developer", "Описание 4", LocalDateTime.now(), true, 3));
-        save(new Vacancy(0, "Middle+ Java Developer", "Описание 5", LocalDateTime.now(), true, 2));
-        save(new Vacancy(0, "Senior Java Developer", "Описание 6", LocalDateTime.now(), true, 3));
+        save(new Vacancy(0, "Intern Java Developer", "Описание 1", LocalDateTime.now(), true, 1, 0));
+        save(new Vacancy(0, "Junior Java Developer", "Описание 2", LocalDateTime.now(), true, 2, 0));
+        save(new Vacancy(0, "Junior+ Java Developer", "Описание 3", LocalDateTime.now(), true, 1, 0));
+        save(new Vacancy(0, "Middle Java Developer", "Описание 4", LocalDateTime.now(), true, 3, 0));
+        save(new Vacancy(0, "Middle+ Java Developer", "Описание 5", LocalDateTime.now(), true, 2, 0));
+        save(new Vacancy(0, "Senior Java Developer", "Описание 6", LocalDateTime.now(), true, 3, 0));
     }
 
     @Override
     public Vacancy save(Vacancy vacancy) {
-        vacancy.setId(nextId.incrementAndGet());
+        vacancy.setId(nextId++);
         vacancies.put(vacancy.getId(), vacancy);
         return vacancy;
     }
@@ -44,7 +44,7 @@ public class MemoryVacancyRepository implements VacancyRepository {
     public boolean update(Vacancy vacancy) {
         return vacancies.computeIfPresent(vacancy.getId(),
                 (id, oldVacancy) -> new Vacancy(oldVacancy.getId(), vacancy.getTitle(),
-                        vacancy.getDescription(), vacancy.getCreationDate(), vacancy.getVisible(), vacancy.getCityId())) != null;
+                        vacancy.getDescription(), vacancy.getCreationDate(), vacancy.getVisible(), vacancy.getCityId(), vacancy.getFileId())) != null;
     }
 
     @Override
