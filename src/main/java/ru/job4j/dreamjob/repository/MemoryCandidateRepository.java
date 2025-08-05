@@ -19,17 +19,17 @@ public class MemoryCandidateRepository implements CandidateRepository {
     private final AtomicInteger nextId = new AtomicInteger(1);
 
     private MemoryCandidateRepository() {
-        save(new Candidate(0, "Иван Иванов", "Описание 1", LocalDateTime.now()));
-        save(new Candidate(0, "Петр Петров", "Описание 2", LocalDateTime.now()));
-        save(new Candidate(0, "Дарья Дашина", "Описание 3", LocalDateTime.now()));
-        save(new Candidate(0, "Егор Егоров", "Описание 4", LocalDateTime.now()));
-        save(new Candidate(0, "Екатерина Попова", "Описание 5", LocalDateTime.now()));
-        save(new Candidate(0, "Евгений Морозов", "Описание 6", LocalDateTime.now()));
+        save(new Candidate(0, "Иван Иванов", "Описание 1", LocalDateTime.now(), 1));
+        save(new Candidate(0, "Петр Петров", "Описание 2", LocalDateTime.now(), 2));
+        save(new Candidate(0, "Дарья Дашина", "Описание 3", LocalDateTime.now(), 3));
+        save(new Candidate(0, "Егор Егоров", "Описание 4", LocalDateTime.now(), 3));
+        save(new Candidate(0, "Екатерина Попова", "Описание 5", LocalDateTime.now(), 2));
+        save(new Candidate(0, "Евгений Морозов", "Описание 6", LocalDateTime.now(), 1));
     }
 
     @Override
     public Candidate save(Candidate candidate) {
-        if (candidate.getId() == 0) { // если id не задан, то присваиваем новый
+        if (candidate.getId() == 0) {
             candidate.setId(nextId.incrementAndGet());
         }
         candidates.put(candidate.getId(), candidate);
@@ -45,7 +45,7 @@ public class MemoryCandidateRepository implements CandidateRepository {
     public boolean update(Candidate candidate) {
         return candidates.computeIfPresent(candidate.getId(),
                 (id, oldCandidate) -> new Candidate(oldCandidate.getId(), candidate.getName(),
-                        candidate.getDescription(), candidate.getCreationDate())) != null;
+                        candidate.getDescription(), candidate.getCreationDate(), candidate.getCityId())) != null;
     }
 
     @Override
