@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head th:include="fragments/header :: header"></head>
 <body>
+<div th:replace="fragments/navigation :: navigation"></div>
 <div class="container">
     <div class="row">
         <table class="table">
@@ -10,13 +10,16 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Имя</th>
+                <th scope="col">Дата создания</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="candidate: ${candidates}">
-                <td th:text="${candidate.id}" />
-                <td><a th:text="${candidate.name}" th:href="@{/candidates/{candidateId}(candidateId=${candidate.id})}"></a></td>
-                <td th:text="${candidate.creationDate}" />
+            <tr th:each="candidate : ${candidates}">
+                <td th:text="${candidate.id}"></td>
+                <td>
+                    <a th:text="${candidate.name}" th:href="@{/candidates/{candidateId}(candidateId=${candidate.id})}"></a>
+                </td>
+                <td th:text="${candidate.creationDate}"></td>
             </tr>
             </tbody>
         </table>
@@ -24,3 +27,4 @@
 </div>
 <footer th:include="fragments/footer :: footer"></footer>
 </body>
+</html>

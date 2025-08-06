@@ -15,8 +15,8 @@ public class SimpleCandidateService implements CandidateService {
 
     private final FileService fileService;
 
-    public SimpleCandidateService(CandidateRepository candidateRepository, FileService fileService) {
-        this.candidateRepository = candidateRepository;
+    public SimpleCandidateService(CandidateRepository sql2oCandidateRepository, FileService fileService) {
+        this.candidateRepository = sql2oCandidateRepository;
         this.fileService = fileService;
     }
 
@@ -47,7 +47,6 @@ public class SimpleCandidateService implements CandidateService {
         if (isNewFileEmpty) {
             return candidateRepository.update(candidate);
         }
-        /* если передан новый не пустой файл, то старый удаляем, а новый сохраняем */
         var oldFileId = candidate.getFileId();
         saveNewFile(candidate, image);
         var isUpdated = candidateRepository.update(candidate);
