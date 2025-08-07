@@ -23,25 +23,24 @@ public class CandidateController {
         this.cityService = cityService;
     }
 
-    @GetMapping
-    public String getAll(Model model, HttpSession session) {
-       var user = (User) session.getAttribute("user");
-       if (user == null) {
-           user = new User();
-           user.setName("Гость");
-       }
-       model.addAttribute("user", user);
-        return "candidates/list";
-    }
-
-    @GetMapping("/create")
-    public String getCreationPage(Model model, HttpSession session) {
-        var user = (User) session.getAttribute("user");
+    private void addUserToModel(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
         if (user == null) {
             user = new User();
             user.setName("Гость");
         }
         model.addAttribute("user", user);
+    }
+
+    @GetMapping
+    public String getAll(Model model, HttpSession session) {
+        addUserToModel(model, session);
+        return "candidates/list";
+    }
+
+    @GetMapping("/create")
+    public String getCreationPage(Model model, HttpSession session) {
+        addUserToModel(model, session);
         return "candidates/create";
     }
 
@@ -63,14 +62,9 @@ public class CandidateController {
             model.addAttribute("message", "Кандидат с указанным идентификатором не найден");
             return "errors/404";
         }
-        var user = (User) session.getAttribute("user");
-        if (user == null) {
-            user = new User();
-            user.setName("Гость");
-        }
+        addUserToModel(model, session);
         model.addAttribute("cities", cityService.findAll());
         model.addAttribute("candidate", candidateOptional.get());
-        model.addAttribute("user", user);
         return "candidates/one";
     }
 

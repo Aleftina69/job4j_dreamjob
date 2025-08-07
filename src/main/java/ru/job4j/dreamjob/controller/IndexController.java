@@ -9,14 +9,18 @@ import ru.job4j.dreamjob.model.User;
 @Controller
 public class IndexController {
 
-    @GetMapping({"/", "/index"})
-    public String getIndex(Model model, HttpSession session) {
-        var user = (User) session.getAttribute("user");
+    private void addUserToModel(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
         if (user == null) {
             user = new User();
             user.setName("Гость");
         }
         model.addAttribute("user", user);
+    }
+
+    @GetMapping({"/", "/index"})
+    public String getIndex(Model model, HttpSession session) {
+       addUserToModel(model, session);
         return "index";
     }
 }

@@ -23,27 +23,26 @@ public class VacancyController {
         this.cityService = cityService;
     }
 
-    @GetMapping("/create")
-    public String getCreationPage(Model model, HttpSession session) {
-        var user = (User) session.getAttribute("user");
+    private void addUserToModel(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
         if (user == null) {
             user = new User();
             user.setName("Гость");
         }
-        model.addAttribute("cities", cityService.findAll());
         model.addAttribute("user", user);
+    }
+
+    @GetMapping("/create")
+    public String getCreationPage(Model model, HttpSession session) {
+        addUserToModel(model, session);
+        model.addAttribute("cities", cityService.findAll());
         return "vacancies/create";
     }
 
     @GetMapping
     public String getAll(Model model, HttpSession session) {
-        var user = (User) session.getAttribute("user");
-        if (user == null) {
-            user = new User();
-            user.setName("Гость");
-        }
+        addUserToModel(model, session);
         model.addAttribute("vacancies", vacancyService.findAll());
-        model.addAttribute("user", user);
         return "vacancies/list";
     }
 
@@ -65,14 +64,9 @@ public class VacancyController {
             model.addAttribute("message", "Вакансия с указанным идентификатором не найдена");
             return "errors/404";
         }
-        var user = (User) session.getAttribute("user");
-        if (user == null) {
-            user = new User();
-            user.setName("Гость");
-        }
+        addUserToModel(model, session);
         model.addAttribute("cities", cityService.findAll());
         model.addAttribute("vacancy", vacancyOptional.get());
-        model.addAttribute("user", user);
         return "vacancies/one";
     }
 
