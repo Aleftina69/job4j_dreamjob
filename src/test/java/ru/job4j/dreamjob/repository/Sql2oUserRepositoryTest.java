@@ -67,8 +67,6 @@ class Sql2oUserRepositoryTest {
 
         Optional<User> saved1 = sql2oUserRepository.save(user1);
         assertThat(saved1).isPresent();
-
-        // При попытке сохранить второго пользователя с тем же email ожидаем исключение
         assertThatThrownBy(() -> sql2oUserRepository.save(user2))
                 .isInstanceOf(org.sql2o.Sql2oException.class);
     }
