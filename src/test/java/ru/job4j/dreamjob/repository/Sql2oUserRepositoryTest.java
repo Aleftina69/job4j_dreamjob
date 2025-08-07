@@ -62,13 +62,15 @@ class Sql2oUserRepositoryTest {
 
     @Test
     void whenSaveUsersWithSameEmailThenSecondAddFails() {
-        User user1 = new User(0, "same@example.com", "User1", "pass1");
-        User user2 = new User(0, "same@example.com", "User2", "pass2");
+        User user1 = new User(0, "same@example.com", "User 1", "pass1");
+        User user2 = new User(0, "same@example.com", "User 2", "pass2");
 
         Optional<User> saved1 = sql2oUserRepository.save(user1);
         assertThat(saved1).isPresent();
+
         assertThatThrownBy(() -> sql2oUserRepository.save(user2))
-                .isInstanceOf(org.sql2o.Sql2oException.class);
+                .isInstanceOf(org.sql2o.Sql2oException.class)
+                .hasMessageContaining("Нарушение уникального индекса или первичного ключа");
     }
 }
     
