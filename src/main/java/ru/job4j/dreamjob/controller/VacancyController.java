@@ -26,7 +26,7 @@ public class VacancyController {
     @GetMapping("/create")
     public String getCreationPage(Model model, HttpSession session) {
         var user = (User) session.getAttribute("user");
-        if(user == null) {
+        if (user == null) {
             user = new User();
             user.setName("Гость");
         }
@@ -38,7 +38,7 @@ public class VacancyController {
     @GetMapping
     public String getAll(Model model, HttpSession session) {
         var user = (User) session.getAttribute("user");
-        if(user == null) {
+        if (user == null) {
             user = new User();
             user.setName("Гость");
         }
@@ -66,7 +66,7 @@ public class VacancyController {
             return "errors/404";
         }
         var user = (User) session.getAttribute("user");
-        if(user == null) {
+        if (user == null) {
             user = new User();
             user.setName("Гость");
         }
