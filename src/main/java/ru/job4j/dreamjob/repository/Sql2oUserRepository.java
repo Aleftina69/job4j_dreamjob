@@ -1,14 +1,22 @@
 package ru.job4j.dreamjob.repository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.sql2o.Sql2o;
+import org.sql2o.Sql2oException;
 import ru.job4j.dreamjob.model.User;
 
 import java.util.Optional;
 
+import static org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties.UiService.LOGGER;
+
 @Repository
 public class Sql2oUserRepository implements UserRepository {
+
     private final Sql2o sql2o;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sql2oUserRepository.class);
 
     public Sql2oUserRepository(Sql2o sql2o) {
         this.sql2o = sql2o;
@@ -28,7 +36,10 @@ public class Sql2oUserRepository implements UserRepository {
             int generatedId = query.executeUpdate().getKey(Integer.class);
             user.setId(generatedId);
             return Optional.of(user);
-        }
+        }  catch (Sql2oException e) {
+        LOGGER.error(e.getMessage());
+    }
+        return Optional.empty();
     }
 
     @Override
@@ -37,8 +48,7 @@ public class Sql2oUserRepository implements UserRepository {
             var query = connection.createQuery("SELECT * FROM users WHERE email = :email AND password = :password");
             query.addParameter("email", email);
             query.addParameter("password", password);
-            var user = query.setColumnMappings(User.COLUMN_MAPPING)
-                    .executeAndFetchFirst(User.class);
+            var user = query.executeAndFetchFirst(User.class);
             return Optional.ofNullable(user);
         }
     }

@@ -1,76 +1,78 @@
 package ru.job4j.dreamjob.repository;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sql2o.Sql2o;
+import ru.job4j.dreamjob.configuration.DatasourceConfiguration;
 import ru.job4j.dreamjob.model.User;
 
-import java.util.Optional;
 import java.util.Properties;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class Sql2oUserRepositoryTest {
 
-    private static Sql2o sql2o;
     private static Sql2oUserRepository sql2oUserRepository;
+    private static Sql2o sql2o;
 
     @BeforeAll
     public static void initRepositories() throws Exception {
         var properties = new Properties();
-        try (var inputStream = Sql2oUserRepositoryTest.class.getClassLoader().getResourceAsStream("connection.properties")) {
+        try (var inputStream = Sql2oUserRepositoryTest.class.getClassLoader()
+                .getResourceAsStream("connection.properties")) {
             properties.load(inputStream);
         }
         var url = properties.getProperty("datasource.url");
         var username = properties.getProperty("datasource.username");
         var password = properties.getProperty("datasource.password");
 
-        sql2o = new Sql2o(url, username, password);
+        var configuration = new DatasourceConfiguration();
+        var datasource = configuration.connectionPool(url, username, password);
+        sql2o = configuration.databaseClient(datasource);
+        try (var connection = sql2o.open()) {
+            connection.createQuery(
+                    "CREATE TABLE IF NOT EXISTS users ("
+                            + "id SERIAL PRIMARY KEY,"
+                            + "email VARCHAR(255) UNIQUE,"
+                            + "name VARCHAR(255),"
+                            + "password VARCHAR(255)"
+                            + ")"
+            ).executeUpdate();
+        }
         sql2oUserRepository = new Sql2oUserRepository(sql2o);
-
-        try (var connection = sql2o.open()) {
-            String sql = """
-                    CREATE TABLE users (
-                        id SERIAL PRIMARY KEY,
-                        email VARCHAR(255) UNIQUE,
-                        name VARCHAR(255),
-                        password VARCHAR(255)
-                    );
-                    """;
-            connection.createQuery(sql).executeUpdate();
-        }
     }
 
-    @AfterAll
-    public static void cleanUp() {
+    @AfterEach
+    public void clearUsers() {
         try (var connection = sql2o.open()) {
-            connection.createQuery("DROP TABLE users").executeUpdate();
+            connection.createQuery("DELETE FROM users").executeUpdate();
         }
     }
 
     @Test
-    void whenSaveUserThenUserIsSaved() {
-        User user = new User(0, "user@example.com", "User", "pass");
-        Optional<User> saved = sql2oUserRepository.save(user);
-
-        assertThat(saved).isPresent();
-        assertThat(saved.get().getId()).isPositive();
-        assertThat(saved.get().getEmail()).isEqualTo("user@example.com");
+    public void whenSaveThenGetSame() {
+        var user = new User(0, "test@yandex.ru", "test", "test");
+        var savedUser  = sql2oUserRepository.save(user);
+        assertThat(savedUser.get()).usingRecursiveAssertion().isEqualTo(user);
     }
 
     @Test
-    void whenSaveUsersWithSameEmailThenSecondAddFails() {
-        User user1 = new User(0, "same@example.com", "User 1", "pass1");
-        User user2 = new User(0, "same@example.com", "User 2", "pass2");
+    public void whenSaveSeveralThenGetByEmailAndPassword() {
+        var user1 = sql2oUserRepository.save(new User(0, "test1@yandex.ru", "test1", "test1"));
+        var user2 = sql2oUserRepository.save(new User(0, "test2@yandex.ru", "test2", "test2"));
+        var user3 = sql2oUserRepository.save(new User(0, "test3@yandex.ru", "test3", "test3"));
+        var savedUser1 = sql2oUserRepository.findByEmailAndPassword(user1.get().getEmail(), user1.get().getPassword()).get();
+        var savedUser2 = sql2oUserRepository.findByEmailAndPassword(user2.get().getEmail(), user2.get().getPassword()).get();
+        var savedUser3 = sql2oUserRepository.findByEmailAndPassword(user3.get().getEmail(), user3.get().getPassword()).get();
+        assertThat(savedUser1).usingRecursiveAssertion().isEqualTo(user1.get());
+        assertThat(savedUser2).usingRecursiveAssertion().isEqualTo(user2.get());
+        assertThat(savedUser3).usingRecursiveAssertion().isEqualTo(user3.get());
+    }
 
-        Optional<User> saved1 = sql2oUserRepository.save(user1);
-        assertThat(saved1).isPresent();
-
-        assertThatThrownBy(() -> sql2oUserRepository.save(user2))
-                .isInstanceOf(org.sql2o.Sql2oException.class)
-                .hasMessageContaining("Нарушение уникального индекса или первичного ключа");
+    @Test
+    public void whenSaveSameUsersThenError() {
+        sql2oUserRepository.save(new User(0, "test@yandex.ru", "test", "test"));
+        assertThat(sql2oUserRepository.save(new User(0, "test@yandex.ru", "test1", "test1")).isEmpty());
     }
 }
-    

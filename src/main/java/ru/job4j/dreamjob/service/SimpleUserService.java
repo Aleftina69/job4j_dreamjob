@@ -11,8 +11,8 @@ public class SimpleUserService implements UserService {
 
     private final UserRepository userRepository;
 
-    public SimpleUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SimpleUserService(UserRepository sql2oUserRepository) {
+        this.userRepository = sql2oUserRepository;
     }
 
     @Override
