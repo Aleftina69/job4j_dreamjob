@@ -76,7 +76,7 @@ public class CandidateController {
                 model.addAttribute("message", "Кандидат с указанным идентификатором не найден");
                 return "errors/404";
             }
-            return "redirect:/vacancies";
+            return "redirect:/candidates";
         } catch (Exception exception) {
             model.addAttribute("message", exception.getMessage());
             return "errors/404";
